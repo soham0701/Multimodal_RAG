@@ -1,16 +1,12 @@
-#!/usr/bin/env python3
+
 # initial_ingest.py
-
-from rag_utils import load_cached_docs, load_faiss_index, ingest_new_pdfs
-
-def main():
-    cached = load_cached_docs()
-    idx    = load_faiss_index()
-    idx, cached, processed = ingest_new_pdfs(idx, cached)
-    if processed:
-        print(f"✅ Embedded: {', '.join(processed)}")
-    else:
-        print("⚠️ No new PDFs found—your originals are already ingested.")
+"""Only to be called for the first time to chunk the original 8 PDFs via CLI"""
+from pathlib import Path
+from rag.pipeline import RAGPipeline
+from rag.ingestion import ingest_new_pdfs
 
 if __name__=="__main__":
-    main()
+    pipe = RAGPipeline(Path("./source_documents"))
+    # ingest all at once
+    _, _, processed = ingest_new_pdfs(pipe.index, pipe.cached_docs)
+    print(f"✅ Embedded: {', '.join(processed)}" if processed else "⚠️ No new PDFs")
